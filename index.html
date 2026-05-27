@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nina's Nexus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg-deep: #050508;
+    --panel: #12121a;
+    --panel-2: #1a1a26;
+    --line: #2a2a3a;
+    --text: #e8e8f0;
+    --text-dim: #7a7a92;
+    --neon-cyan: #00f0ff;
+    --neon-magenta: #ff2dd1;
+    --neon-lime: #c6ff3d;
+    --neon-violet: #9d4eff;
+    --neon-amber: #ffb627;
+    --neon-pink: #ff6ec7;
+    --neon-blue: #5b8dff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
+  body {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    position: relative;
+    padding: 2.5rem 2rem 4rem;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255, 45, 209, 0.08) 0%, transparent 35%),
+      radial-gradient(circle at 85% 75%, rgba(0, 240, 255, 0.08) 0%, transparent 35%),
+      radial-gradient(circle at 50% 50%, rgba(157, 78, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .masthead {
+    font-family: 'Major Mono Display', monospace;
+    font-size: clamp(2rem, 5.5vw, 3.8rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.4), 0 0 40px rgba(0, 240, 255, 0.2);
+  }
+  .masthead .accent {
+    color: var(--neon-magenta);
+    text-shadow: 0 0 20px rgba(255, 45, 209, 0.6), 0 0 40px rgba(255, 45, 209, 0.3);
+  }
+  .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    text-align: right;
+    line-height: 1.7;
+    color: var(--text-dim);
+  }
+  .meta .date { color: var(--neon-cyan); font-weight: 700; }
+  .meta .pulse {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--neon-lime);
+    border-radius: 50%;
+    margin-right: 6px;
+    box-shadow: 0 0 8px var(--neon-lime);
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* Section labels */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2.5rem 0 1.25rem;
+  }
+  .section-header h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--section-color, var(--neon-cyan));
+    font-weight: 700;
+    text-shadow: 0 0 10px var(--section-color, var(--neon-cyan));
+  }
+  .section-header .line {
+    flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--section-color, var(--neon-cyan)), transparent);
+    opacity: 0.4;
+  }
+  .section-header:first-of-type { margin-top: 0; }
+
+  /* Tracker grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1rem;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 1.5rem 1.4rem 1.3rem;
+    position: relative;
+    color: var(--text);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    min-height: 190px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 60%, var(--glow, transparent) 100%);
+    opacity: 0.08;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--glow, var(--neon-cyan));
+    box-shadow: 0 0 12px var(--glow, var(--neon-cyan));
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: var(--glow);
+    box-shadow: 0 0 30px -5px var(--glow), 0 0 60px -15px var(--glow);
+  }
+  .card:hover::before { opacity: 0.18; }
+  .card .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--glow);
+    margin-bottom: 0.85rem;
+    font-weight: 500;
+  }
+  .card h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 1.7rem;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .card .subtitle {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.45;
+  }
+  .card .open-tag {
+    margin-top: auto;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card:hover .open-tag { color: var(--glow); }
+  .card .open-tag .arrow { transition: transform 0.2s; }
+  .card:hover .open-tag .arrow { transform: translateX(4px); }
+
+  .card.adulting { grid-column: span 6; --glow: var(--neon-cyan); min-height: 220px; }
+  .card.mcat { grid-column: span 6; --glow: var(--neon-magenta); min-height: 220px; }
+  .card.research { grid-column: span 4; --glow: var(--neon-lime); }
+  .card.lawsuit { grid-column: span 4; --glow: var(--neon-violet); }
+  .card.mit { grid-column: span 4; --glow: var(--neon-amber); }
+  .card.adulting h2, .card.mcat h2 { font-size: 2rem; }
+
+  /* Claude Projects */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1rem;
+  }
+  .project-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 1.1rem 1.2rem;
+    text-decoration: none;
+    color: var(--text);
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    grid-column: span 3;
+    min-height: 110px;
+  }
+  .project-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--glow);
+    box-shadow: 0 0 10px var(--glow);
+    opacity: 0.7;
+  }
+  .project-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--glow);
+    box-shadow: 0 0 25px -8px var(--glow);
+  }
+  .project-card .pnum {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--glow);
+    margin-bottom: 0.5rem;
+    opacity: 0.85;
+  }
+  .project-card h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin-bottom: auto;
+  }
+  .project-card .arrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-align: right;
+    margin-top: 0.6rem;
+    transition: all 0.2s;
+  }
+  .project-card:hover .arrow { color: var(--glow); transform: translateX(3px); }
+
+  /* Hero project */
+  .project-card.hero {
+    grid-column: span 12;
+    min-height: 180px;
+    padding: 2rem 2.25rem;
+    background:
+      radial-gradient(circle at 80% 50%, rgba(255, 45, 209, 0.12) 0%, transparent 60%),
+      var(--panel);
+    --glow: var(--neon-magenta);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .project-card.hero::after {
+    height: 3px;
+    box-shadow: 0 0 18px var(--glow), 0 0 40px var(--glow);
+  }
+  .project-card.hero .hero-content { flex: 1; }
+  .project-card.hero .pnum {
+    font-size: 0.7rem;
+    color: var(--neon-magenta);
+    text-shadow: 0 0 8px rgba(255, 45, 209, 0.5);
+  }
+  .project-card.hero h4 {
+    font-family: 'Major Mono Display', monospace;
+    font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+    font-weight: 400;
+    line-height: 1.05;
+    margin-bottom: 0.4rem;
+    text-shadow: 0 0 20px rgba(255, 45, 209, 0.3);
+  }
+  .project-card.hero .hero-sub {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+  .project-card.hero .hero-cta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--neon-magenta);
+    padding: 0.85rem 1.5rem;
+    border: 1px solid var(--neon-magenta);
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .project-card.hero:hover .hero-cta {
+    background: var(--neon-magenta);
+    color: var(--bg);
+    box-shadow: 0 0 20px var(--neon-magenta);
+  }
+
+  .project-card.p2 { --glow: var(--neon-cyan); }
+  .project-card.p3 { --glow: var(--neon-lime); }
+  .project-card.p4 { --glow: var(--neon-violet); }
+  .project-card.p5 { --glow: var(--neon-amber); }
+  .project-card.p6 { --glow: var(--neon-pink); }
+  .project-card.p7 { --glow: var(--neon-blue); }
+  .project-card.p8 { --glow: var(--neon-magenta); }
+  .project-card.p9 { --glow: var(--neon-cyan); }
+
+  /* Brag sheet */
+  .brag-section {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .brag-section::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, var(--neon-lime), var(--neon-cyan), var(--neon-magenta));
+    box-shadow: 0 0 15px var(--neon-lime);
+  }
+  .brag-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .brag-tagline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+  .brag-tagline strong {
+    color: var(--neon-lime);
+    font-style: normal;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(198, 255, 61, 0.4);
+  }
+  .brag-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .brag-controls button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0.5rem 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .brag-controls button:hover {
+    border-color: var(--neon-lime);
+    color: var(--neon-lime);
+  }
+
+  .brag-empty {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .brag-empty h4 {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--neon-amber);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .brag-empty code {
+    background: var(--bg-deep);
+    border: 1px solid var(--line);
+    color: var(--neon-lime);
+    padding: 0.15rem 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+  }
+  .brag-empty .steps {
+    text-align: left;
+    max-width: 580px;
+    margin: 1rem auto 0;
+    padding-left: 1.25rem;
+    list-style: decimal;
+  }
+  .brag-empty .steps li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .brag-loading {
+    padding: 2rem;
+    text-align: center;
+    color: var(--neon-cyan);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .brag-list {
+    max-height: 520px;
+    overflow-y: auto;
+    padding: 0.25rem 0;
+  }
+  .brag-list::-webkit-scrollbar { width: 8px; }
+  .brag-list::-webkit-scrollbar-track { background: var(--bg-deep); }
+  .brag-list::-webkit-scrollbar-thumb { background: var(--line); }
+  .brag-list::-webkit-scrollbar-thumb:hover { background: var(--neon-lime); }
+
+  .brag-item {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.15s;
+  }
+  .brag-item:hover { background: rgba(198, 255, 61, 0.03); }
+  .brag-item:last-child { border-bottom: none; }
+
+  .brag-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--neon-cyan);
+    letter-spacing: 0.05em;
+  }
+  .brag-task {
+    font-size: 0.92rem;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .brag-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .cat-justice { color: var(--neon-violet); border-color: var(--neon-violet); }
+  .cat-mcat { color: var(--neon-magenta); border-color: var(--neon-magenta); }
+  .cat-shape { color: var(--neon-lime); border-color: var(--neon-lime); }
+  .cat-prof { color: var(--neon-cyan); border-color: var(--neon-cyan); }
+  .cat-financial { color: var(--neon-amber); border-color: var(--neon-amber); }
+  .cat-research { color: var(--neon-pink); border-color: var(--neon-pink); }
+  .cat-etc { color: var(--text-dim); border-color: var(--line); }
+
+  .brag-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+  .stat {
+    padding: 1rem;
+    text-align: center;
+    border-right: 1px solid var(--line);
+  }
+  .stat:last-child { border-right: none; }
+  .stat .stat-num {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 1.8rem;
+    color: var(--neon-lime);
+    text-shadow: 0 0 12px rgba(198, 255, 61, 0.5);
+    line-height: 1;
+  }
+  .stat .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    margin-top: 0.4rem;
+  }
+
+  footer {
+    margin-top: 3rem;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    opacity: 0.5;
+  }
+  footer .blink { color: var(--neon-lime); animation: pulse 1.5s infinite; }
+
+  @media (max-width: 900px) {
+    .project-card { grid-column: span 6; }
+  }
+  @media (max-width: 768px) {
+    body { padding: 1.5rem 1rem 3rem; }
+    .card.adulting, .card.mcat, .card.research, .card.lawsuit, .card.mit { grid-column: span 12; }
+    .project-card { grid-column: span 12; }
+    .project-card.hero { flex-direction: column; align-items: flex-start; }
+    .meta { text-align: left; }
+    .brag-item { grid-template-columns: 1fr; gap: 0.35rem; }
+    .brag-date { font-size: 0.65rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1 class="masthead">nina's<br><span class="accent">nexus</span></h1>
+    <div class="meta">
+      <div class="date" id="today"></div>
+      <div><span class="pulse"></span>five trackers · nine projects</div>
+      <div>v.2026</div>
+    </div>
+  </header>
+
+  <!-- TRACKERS -->
+  <div class="section-header" style="--section-color: var(--neon-cyan);">
+    <h3>// Trackers</h3>
+    <div class="line"></div>
+  </div>
+
+  <div class="grid">
+    <a href="https://docs.google.com/spreadsheets/d/1SSbeOVZrDNVIYtrb3J2GJpK7csdvnoqzBz6wx8WJyWE/edit" target="_blank" class="card adulting">
+      <div class="num">N 01 · primary</div>
+      <h2>Adulting</h2>
+      <div class="subtitle">The master list. Everything that doesn't live somewhere more specific lands here.</div>
+      <div class="open-tag"><span>Open</span><span class="arrow">&#8599;</span></div>
+    </a>
+    <a href="https://docs.google.com/spreadsheets/d/1-tpWvMCbV2uvfuccluSlR81gb55R0N4tdPy03CgpZPA/edit" target="_blank" class="card mcat">
+      <div class="num">N 02 · test day jun 25</div>
+      <h2>MCAT</h2>
+      <div class="subtitle">Weekly study schedule, progress 0-4. App logistics live on Adulting.</div>
+      <div class="open-tag"><span>Open</span><span class="arrow">&#8599;</span></div>
+    </a>
+    <a href="https://docs.google.com/spreadsheets/d/1tXwSF3nhNkwn1gM4zdB-TKLjM2Uvd01kHfrC9p1fVqo/edit" target="_blank" class="card research">
+      <div class="num">N 03 · lab</div>
+      <h2>Research</h2>
+      <div class="subtitle">Experiments, scripts, figures, data.</div>
+      <div class="open-tag"><span>Open</span><span class="arrow">&#8599;</span></div>
+    </a>
+    <a href="https://docs.google.com/spreadsheets/d/19B_lMOA6QF63rqfadZMTkC3BSuxA9fvdTACXdR0tWrI/edit" target="_blank" class="card lawsuit">
+      <div class="num">N 04 · legal</div>
+      <h2>Lawsuit</h2>
+      <div class="subtitle">Active filings & case docs.</div>
+      <div class="open-tag"><span>Open</span><span class="arrow">&#8599;</span></div>
+    </a>
+    <a href="https://docs.google.com/spreadsheets/d/1JZheX4RZMsEnh8Mczf_R25atjfM0TC4INPbJh0HcD-k/edit" target="_blank" class="card mit">
+      <div class="num">N 05 · mar-sep '26</div>
+      <h2>MIT AAIDSP</h2>
+      <div class="subtitle">Read-mostly. Hard deadlines.</div>
+      <div class="open-tag"><span>Open</span><span class="arrow">&#8599;</span></div>
+    </a>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="section-header" style="--section-color: var(--neon-magenta);">
+    <h3>// Claude Projects</h3>
+    <div class="line"></div>
+  </div>
+
+  <div class="projects-grid">
+    <a href="https://claude.ai/project/019e690d-8a43-75bd-ac43-fa16e49d2906" target="_blank" class="project-card hero">
+      <div class="hero-content">
+        <div class="pnum">&#9733; featured · daily driver</div>
+        <h4>Personal Assistant</h4>
+        <div class="hero-sub">tracker management, triage, planning</div>
+      </div>
+      <div class="hero-cta">Launch &#8599;</div>
+    </a>
+
+    <a href="https://claude.ai/project/019e03f1-265e-758a-b4a7-02faff1dd61a" target="_blank" class="project-card p2">
+      <div class="pnum">N 02</div>
+      <h4>Attorney Scraper</h4>
+      <div class="arrow">open &#8599;</div>
+    </a>
+    <a href="https://claude.ai/project/019ddd64-43ff-770a-adde-21340ff26171" target="_blank" class="project-card p3">
+      <div class="pnum">N 03</div>
+      <h4>Aish LA et al.</h4>
+      <div class="arrow">open &#8599;</div>
+    </a>
+    <a href="https://claude.ai/project/019ddcc3-4cd4-775c-817e-627aeae113c6" target="_blank" class="project-card p4">
+      <div class="pnum">N 04</div>
+      <h4>MD-PhD Application</h4>
+      <div class="arrow">open &#8599;</div>
+    </a>
+    <a href="https://claude.ai/project/019ddc9e-03a1-7592-abd0-44b6870d3552" target="_blank" class="project-card p5">
+      <div class="pnum">N 05</div>
+      <h4>Deeds Pre-print</h4>
+      <div class="arrow">open &#8599;</div>
+    </a>
+    <a href="https://claude.ai/project/019dd175-bb44-7177-bb23-1f7c04a7a7cf" target="_blank" class="project-card p6">
+      <div class="pnum">N 06</div>
+      <h4>Applying to Tech Job</h4>
+      <div class="arrow">open &#8599;</div>
+    </a>
+    <a href="https://claude.ai/project/019dcc42-fc3e-7067-bb0b-87a8beab7c76" target="_blank" class="project-card p7">
+      <div class="pnum">N 07</div>
+      <h4>PCC Law Suit</h4>
+      <div class="arrow">open &#8599;</div>
+    </a>
+    <a href="https://claude.ai/project/019dcc41-4f0f-7292-8703-3fba0e9ed6e8" target="_blank" class="project-card p8">
+      <div class="pnum">N 08</div>
+      <h4>Career Center Law Suit</h4>
+      <div class="arrow">open &#8599;</div>
+    </a>
+    <a href="https://claude.ai/project/019dbc9f-b327-77d2-8a27-d415ee2ac2d0" target="_blank" class="project-card p9">
+      <div class="pnum">N 09</div>
+      <h4>MIT Applied AI &amp; DS Certificate</h4>
+      <div class="arrow">open &#8599;</div>
+    </a>
+  </div>
+
+  <!-- BRAG SHEET -->
+  <div class="section-header" style="--section-color: var(--neon-lime);">
+    <h3>// Brag Sheet</h3>
+    <div class="line"></div>
+  </div>
+
+  <div class="brag-section">
+    <div class="brag-toolbar">
+      <div class="brag-tagline">things you've actually <strong>finished</strong>. don't forget.</div>
+      <div class="brag-controls">
+        <button id="refresh-btn">Refresh</button>
+        <button id="config-btn">Configure</button>
+      </div>
+    </div>
+
+    <div id="brag-content">
+      <div class="brag-empty" id="brag-empty">
+        <h4>// setup required</h4>
+        <p>To make this auto-update from your Adulting Tracker:</p>
+        <ol class="steps">
+          <li>In your Adulting Tracker, make a new tab called <code>Brag</code></li>
+          <li>In <code>A1</code> put: <code>=QUERY('YOUR_MAIN_TAB'!A:N, "SELECT N, D, A WHERE B='Complete' ORDER BY N DESC", 1)</code></li>
+          <li><strong>File &rarr; Share &rarr; Publish to web</strong> &rarr; select the Brag tab &rarr; <strong>CSV</strong> format &rarr; Publish</li>
+          <li>Copy the published link, click <strong>Configure</strong> above, paste it in</li>
+        </ol>
+        <p style="margin-top: 1rem; font-size: 0.8rem;">The link gets saved in your browser so you only do this once.</p>
+      </div>
+    </div>
+
+    <div class="brag-stats" id="brag-stats" style="display: none;">
+      <div class="stat"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Done</div></div>
+      <div class="stat"><div class="stat-num" id="stat-week">0</div><div class="stat-label">This Week</div></div>
+      <div class="stat"><div class="stat-num" id="stat-month">0</div><div class="stat-label">This Month</div></div>
+      <div class="stat"><div class="stat-num" id="stat-year">0</div><div class="stat-label">This Year</div></div>
+    </div>
+  </div>
+
+  <footer><span class="blink">&#9679;</span> &nbsp; system online · maintained with care</footer>
+</div>
+
+<script>
+  // Date
+  const d = new Date();
+  const opts = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+  document.getElementById('today').textContent = d.toLocaleDateString('en-US', opts).toUpperCase();
+
+  // ---- Brag Sheet ----
+  const STORAGE_KEY = 'nina_brag_csv_url';
+  const bragContent = document.getElementById('brag-content');
+  const bragStats = document.getElementById('brag-stats');
+  const refreshBtn = document.getElementById('refresh-btn');
+  const configBtn = document.getElementById('config-btn');
+
+  function categoryClass(cat) {
+    if (!cat) return 'cat-etc';
+    const c = cat.toLowerCase();
+    if (c.includes('justice') || c.includes('legal') || c.includes('law')) return 'cat-justice';
+    if (c.includes('mcat') || c.includes('md-phd') || c.includes('md/phd')) return 'cat-mcat';
+    if (c.includes('shape') || c.includes('health') || c.includes('fitness')) return 'cat-shape';
+    if (c.includes('profession') || c.includes('career') || c.includes('tech')) return 'cat-prof';
+    if (c.includes('financ')) return 'cat-financial';
+    if (c.includes('research') || c.includes('ressearch')) return 'cat-research';
+    return 'cat-etc';
+  }
+
+  function parseCSV(text) {
+    // Robust CSV parse handling quoted fields with commas/newlines
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i], next = text[i+1];
+      if (inQuotes) {
+        if (ch === '"' && next === '"') { field += '"'; i++; }
+        else if (ch === '"') { inQuotes = false; }
+        else { field += ch; }
+      } else {
+        if (ch === '"') inQuotes = true;
+        else if (ch === ',') { row.push(field); field = ''; }
+        else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+        else if (ch === '\r') { /* skip */ }
+        else field += ch;
+      }
+    }
+    if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    if (isNaN(d)) return dateStr;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }).toUpperCase();
+  }
+
+  function computeStats(items) {
+    const now = new Date();
+    const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+    const monthAgo = new Date(now); monthAgo.setMonth(monthAgo.getMonth() - 1);
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+
+    let week = 0, month = 0, year = 0;
+    items.forEach(it => {
+      const dt = new Date(it.date);
+      if (isNaN(dt)) return;
+      if (dt >= weekAgo) week++;
+      if (dt >= monthAgo) month++;
+      if (dt >= yearStart) year++;
+    });
+
+    document.getElementById('stat-total').textContent = items.length;
+    document.getElementById('stat-week').textContent = week;
+    document.getElementById('stat-month').textContent = month;
+    document.getElementById('stat-year').textContent = year;
+  }
+
+  function renderBrag(items) {
+    if (!items.length) {
+      bragContent.innerHTML = '<div class="brag-empty"><h4>// nothing yet</h4><p>No completed tasks found in the published sheet.</p></div>';
+      bragStats.style.display = 'none';
+      return;
+    }
+    const html = '<div class="brag-list">' + items.map(it => {
+      const cls = categoryClass(it.category);
+      return '<div class="brag-item">' +
+        '<div class="brag-date">' + formatDate(it.date) + '</div>' +
+        '<div class="brag-task">' + escapeHtml(it.task || '(no description)') + '</div>' +
+        '<div class="brag-cat ' + cls + '">' + escapeHtml(it.category || 'etc') + '</div>' +
+        '</div>';
+    }).join('') + '</div>';
+    bragContent.innerHTML = html;
+    bragStats.style.display = 'grid';
+    computeStats(items);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  async function loadBrag() {
+    const url = localStorage.getItem(STORAGE_KEY);
+    if (!url) return; // show setup screen (default)
+
+    bragContent.innerHTML = '<div class="brag-loading">// fetching brag sheet...</div>';
+    bragStats.style.display = 'none';
+
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const text = await resp.text();
+      const rows = parseCSV(text.trim());
+      if (rows.length === 0) { renderBrag([]); return; }
+
+      // Drop header row, map: [completed_date, task, category]
+      const items = rows.slice(1).filter(r => r.some(c => c && c.trim())).map(r => ({
+        date: (r[0] || '').trim(),
+        task: (r[1] || '').trim(),
+        category: (r[2] || '').trim()
+      }));
+      renderBrag(items);
+    } catch (err) {
+      bragContent.innerHTML =
+        '<div class="brag-empty"><h4>// fetch failed</h4>' +
+        '<p>Could not load the published CSV. The link may be wrong, the sheet may not be published, or the network blocked it.</p>' +
+        '<p style="margin-top:0.75rem;font-size:0.78rem;color:var(--text-dim);">Error: ' + escapeHtml(err.message) + '</p>' +
+        '<p style="margin-top:1rem;"><button onclick="configureBrag()" style="background:transparent;border:1px solid var(--neon-amber);color:var(--neon-amber);padding:0.5rem 1rem;font-family:JetBrains Mono,monospace;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;cursor:pointer;">Reconfigure</button></p>' +
+        '</div>';
+      bragStats.style.display = 'none';
+    }
+  }
+
+  function configureBrag() {
+    const current = localStorage.getItem(STORAGE_KEY) || '';
+    const url = prompt('Paste the published-to-web CSV link from your Adulting Tracker Brag tab.\n\nFile → Share → Publish to web → CSV format → copy link:', current);
+    if (url === null) return;
+    if (url.trim() === '') {
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+      return;
+    }
+    localStorage.setItem(STORAGE_KEY, url.trim());
+    loadBrag();
+  }
+  window.configureBrag = configureBrag;
+
+  configBtn.addEventListener('click', configureBrag);
+  refreshBtn.addEventListener('click', loadBrag);
+
+  loadBrag();
+</script>
+</body>
+</html>
