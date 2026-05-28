@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nina's Nexus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f; --bg-deep: #050508; --panel: #12121a; --panel-2: #1a1a26;
+    --line: #2a2a3a; --text: #e8e8f0; --text-dim: #7a7a92;
+
+    /* Neon spectrum — hot pink → magenta → violet → electric blue → cyan → lime */
+    --hot-pink: #ff1f8f;
+    --magenta: #ff2dd1;
+    --violet: #b347ff;
+    --blue: #5b8dff;
+    --cyan: #00f0ff;
+    --lime: #c6ff3d;
+    --amber: #ffb627;
+    --coral: #ff6b6b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
+  body { font-family: 'Space Grotesk', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; position: relative; padding: 2.5rem 2rem 4rem; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(255, 31, 143, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%); -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%); }
+  body::after { content: ''; position: fixed; inset: 0; background: radial-gradient(circle at 15% 20%, rgba(255, 31, 143, 0.08) 0%, transparent 35%), radial-gradient(circle at 85% 75%, rgba(0, 240, 255, 0.08) 0%, transparent 35%), radial-gradient(circle at 50% 50%, rgba(179, 71, 255, 0.06) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+  .container { max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
+
+  header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; padding-bottom: 1.5rem; margin-bottom: 2.5rem; border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 1.25rem; }
+  .logo { flex-shrink: 0; filter: drop-shadow(0 0 12px rgba(255, 31, 143, 0.5)); animation: logo-pulse 4s ease-in-out infinite; }
+  @keyframes logo-pulse {
+    0%, 100% { filter: drop-shadow(0 0 12px rgba(255, 31, 143, 0.5)); }
+    50% { filter: drop-shadow(0 0 20px rgba(179, 71, 255, 0.7)); }
+  }
+  .masthead {
+    font-family: 'Major Mono Display', monospace;
+    font-size: clamp(1.8rem, 4.5vw, 3.4rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--hot-pink) 0%, var(--magenta) 30%, var(--violet) 60%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 0 14px rgba(255, 45, 209, 0.4));
+  }
+  .meta { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.18em; text-align: right; line-height: 1.7; color: var(--text-dim); }
+  .meta .date { color: var(--cyan); font-weight: 700; }
+  .meta .pulse { display: inline-block; width: 6px; height: 6px; background: var(--lime); border-radius: 50%; margin-right: 6px; box-shadow: 0 0 8px var(--lime); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* SPLIT */
+  .split { display: grid; grid-template-columns: 1fr 2px 1fr 2px 1fr; gap: 1.5rem; margin-bottom: 3rem; }
+  .split-divider {
+    background: linear-gradient(180deg, transparent 0%, var(--hot-pink) 12%, var(--magenta) 28%, var(--violet) 50%, var(--blue) 72%, var(--cyan) 88%, transparent 100%);
+    box-shadow: 0 0 12px rgba(179, 71, 255, 0.5);
+    width: 2px;
+    position: relative;
+  }
+  .split-divider::before, .split-divider::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .split-divider::before { top: 10%; background: var(--hot-pink); box-shadow: 0 0 12px var(--hot-pink); }
+  .split-divider::after { bottom: 10%; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); }
+
+  .section-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+  .section-header h3 { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--section-color, var(--cyan)); font-weight: 700; text-shadow: 0 0 10px var(--section-color, var(--cyan)); }
+  .section-header .line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--section-color, var(--cyan)), transparent); opacity: 0.4; }
+
+  /* trackers */
+  .tracker-stack { display: flex; flex-direction: column; gap: 0.85rem; }
+  .card { background: var(--panel); border: 1px solid var(--line); padding: 1.15rem 1.25rem; position: relative; color: var(--text); text-decoration: none; display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
+  .card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 60%, var(--glow, transparent) 100%); opacity: 0.08; pointer-events: none; transition: opacity 0.3s; }
+  .card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--glow, var(--cyan)); box-shadow: 0 0 12px var(--glow, var(--cyan)); }
+  .card:hover { transform: translateX(4px); border-color: var(--glow); box-shadow: 0 0 30px -5px var(--glow); }
+  .card:hover::before { opacity: 0.18; }
+  .card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 0.35rem; }
+  .card .num { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--glow); font-weight: 500; }
+  .card .arrow-small { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); transition: all 0.2s; }
+  .card:hover .arrow-small { color: var(--glow); transform: translateX(3px); }
+  .card h2 { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 1.4rem; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 0.35rem; }
+  .card .subtitle { font-size: 0.78rem; color: var(--text-dim); line-height: 1.4; }
+
+  /* tracker spectrum: hot-pink → magenta → violet → blue → cyan */
+  .card.adulting { --glow: var(--hot-pink); }
+  .card.mcat { --glow: var(--magenta); }
+  .card.research { --glow: var(--violet); }
+  .card.lawsuit { --glow: var(--blue); }
+  .card.mit { --glow: var(--cyan); }
+  .card.adulting h2, .card.mcat h2 { font-size: 1.55rem; }
+
+  /* projects */
+  .projects-stack { display: flex; flex-direction: column; gap: 0.85rem; }
+  .project-card { background: var(--panel); border: 1px solid var(--line); padding: 0.95rem 1.15rem; text-decoration: none; color: var(--text); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .project-card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--glow); box-shadow: 0 0 10px var(--glow); opacity: 0.7; }
+  .project-card:hover { transform: translateX(4px); border-color: var(--glow); box-shadow: 0 0 25px -8px var(--glow); }
+  .project-card .pinfo { display: flex; flex-direction: column; gap: 0.25rem; flex: 1; min-width: 0; }
+  .project-card .pnum { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--glow); opacity: 0.85; }
+  .project-card h4 { font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 0.98rem; line-height: 1.2; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .project-card .arrow { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-dim); transition: all 0.2s; flex-shrink: 0; }
+  .project-card:hover .arrow { color: var(--glow); transform: translateX(3px); }
+
+  .project-card.hero {
+    padding: 1.5rem 1.5rem;
+    background: radial-gradient(circle at 80% 50%, rgba(255, 31, 143, 0.15) 0%, transparent 60%), var(--panel);
+    --glow: var(--hot-pink);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .project-card.hero::after { height: 3px; box-shadow: 0 0 18px var(--glow), 0 0 40px var(--glow); }
+  .project-card.hero .pinfo { gap: 0.5rem; }
+  .project-card.hero .pnum { font-size: 0.65rem; color: var(--hot-pink); text-shadow: 0 0 8px rgba(255, 31, 143, 0.5); }
+  .project-card.hero h4 { font-family: 'Major Mono Display', monospace; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 400; line-height: 1.05; text-shadow: 0 0 20px rgba(255, 31, 143, 0.3); white-space: normal; }
+  .project-card.hero .hero-sub { font-size: 0.8rem; color: var(--text-dim); font-style: italic; }
+  .project-card.hero .hero-cta { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--hot-pink); padding: 0.65rem 1.2rem; border: 1px solid var(--hot-pink); transition: all 0.2s; white-space: nowrap; align-self: flex-start; }
+  .project-card.hero:hover .hero-cta { background: var(--hot-pink); color: var(--bg); box-shadow: 0 0 20px var(--hot-pink); }
+
+  /* project spectrum mirrors trackers: warm → cool */
+  .project-card.p2 { --glow: var(--magenta); }
+  .project-card.p3 { --glow: var(--coral); }
+  .project-card.p4 { --glow: var(--violet); }
+  .project-card.p5 { --glow: var(--amber); }
+  .project-card.p6 { --glow: var(--blue); }
+  .project-card.p7 { --glow: var(--cyan); }
+  .project-card.p8 { --glow: var(--lime); }
+  .project-card.p9 { --glow: var(--magenta); }
+
+  /* Brag */
+  .brag-section { background: var(--panel); border: 1px solid var(--line); padding: 0; overflow: hidden; position: relative; }
+  .brag-section::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, var(--hot-pink), var(--magenta), var(--violet), var(--blue), var(--cyan), var(--lime)); box-shadow: 0 0 15px rgba(179, 71, 255, 0.6); }
+  .brag-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--line); flex-wrap: wrap; gap: 0.75rem; }
+  .brag-tagline { font-family: 'Space Grotesk', sans-serif; font-style: italic; font-size: 0.85rem; color: var(--text-dim); }
+  .brag-tagline strong {
+    background: linear-gradient(90deg, var(--hot-pink), var(--magenta), var(--violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    font-style: normal;
+    font-weight: 700;
+  }
+  .brag-controls { display: flex; gap: 0.5rem; align-items: center; }
+  .brag-controls button, .brag-controls a { background: transparent; border: 1px solid var(--line); color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em; padding: 0.5rem 0.85rem; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+  .brag-controls button:hover, .brag-controls a:hover { border-color: var(--hot-pink); color: var(--hot-pink); }
+  .brag-empty { padding: 2rem 1.5rem; text-align: center; color: var(--text-dim); font-size: 0.9rem; line-height: 1.6; }
+  .brag-empty h4 { font-family: 'JetBrains Mono', monospace; color: var(--amber); font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .brag-empty code { background: var(--bg-deep); border: 1px solid var(--line); color: var(--lime); padding: 0.15rem 0.4rem; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
+  .brag-empty .steps { text-align: left; max-width: 480px; margin: 1rem auto 0; padding-left: 1.25rem; list-style: decimal; }
+  .brag-empty .steps li { margin-bottom: 0.4rem; line-height: 1.45; }
+  .brag-loading { padding: 2rem; text-align: center; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; }
+  .brag-list { max-height: 520px; overflow-y: auto; padding: 0.25rem 0; }
+  .brag-list::-webkit-scrollbar { width: 8px; }
+  .brag-list::-webkit-scrollbar-track { background: var(--bg-deep); }
+  .brag-list::-webkit-scrollbar-thumb { background: var(--line); }
+  .brag-list::-webkit-scrollbar-thumb:hover { background: var(--hot-pink); }
+  .brag-item { display: grid; grid-template-columns: 100px 1fr auto; gap: 1rem; align-items: center; padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--line); transition: background 0.15s; }
+  .brag-item:hover { background: rgba(255, 31, 143, 0.04); }
+  .brag-item:last-child { border-bottom: none; }
+  .brag-date { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--cyan); letter-spacing: 0.05em; }
+  .brag-task { font-size: 0.92rem; color: var(--text); line-height: 1.4; }
+  .brag-cat { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; padding: 0.3rem 0.6rem; border: 1px solid; white-space: nowrap; }
+  .cat-justice { color: var(--violet); border-color: var(--violet); }
+  .cat-mcat { color: var(--magenta); border-color: var(--magenta); }
+  .cat-shape { color: var(--lime); border-color: var(--lime); }
+  .cat-prof { color: var(--cyan); border-color: var(--cyan); }
+  .cat-financial { color: var(--amber); border-color: var(--amber); }
+  .cat-research { color: var(--hot-pink); border-color: var(--hot-pink); }
+  .cat-etc { color: var(--text-dim); border-color: var(--line); }
+  .brag-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0; border-top: 1px solid var(--line); }
+  .stat { padding: 1rem; text-align: center; border-right: 1px solid var(--line); }
+  .stat:last-child { border-right: none; }
+  .stat .stat-num { font-family: 'Major Mono Display', monospace; font-size: 1.8rem; line-height: 1; background: linear-gradient(135deg, var(--hot-pink), var(--violet)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; filter: drop-shadow(0 0 8px rgba(179, 71, 255, 0.4)); }
+  .stat .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-dim); margin-top: 0.4rem; }
+  /* Backburner */
+  .backburner-toggle {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 700;
+    padding: 0.95rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .backburner-toggle::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, var(--amber), var(--coral)); box-shadow: 0 0 12px var(--amber); opacity: 0.6; transition: opacity 0.25s; }
+  .backburner-toggle:hover { color: var(--amber); border-color: var(--amber); }
+  .backburner-toggle:hover::after { opacity: 1; }
+  .backburner-toggle .bb-left { display: flex; align-items: center; gap: 0.6rem; }
+  .backburner-toggle .flame { color: var(--amber); font-size: 0.9rem; filter: drop-shadow(0 0 6px var(--amber)); }
+  .backburner-toggle .chevron { transition: transform 0.3s; font-size: 0.9rem; }
+  .backburner-toggle.open .chevron { transform: rotate(180deg); }
+  .backburner-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--panel);
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+  }
+  .backburner-body.open { max-height: 800px; border-bottom: 1px solid var(--line); }
+  .backburner-inner { padding: 1.25rem; }
+  .bb-caption { font-family: 'Space Grotesk', sans-serif; font-style: italic; font-size: 0.82rem; color: var(--text-dim); margin-bottom: 1rem; }
+  .bb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.85rem; }
+  .bb-card { background: var(--bg-deep); border: 1px solid var(--line); padding: 1.1rem 1.2rem; text-decoration: none; color: var(--text); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; display: flex; flex-direction: column; min-height: 90px; }
+  .bb-card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--glow); box-shadow: 0 0 10px var(--glow); opacity: 0.7; }
+  .bb-card:hover { transform: translateY(-3px); border-color: var(--glow); box-shadow: 0 0 25px -8px var(--glow); }
+  .bb-card .bb-kind { font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--glow); opacity: 0.85; margin-bottom: 0.45rem; }
+  .bb-card h5 { font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 1.05rem; line-height: 1.15; letter-spacing: -0.01em; margin-bottom: auto; }
+  .bb-card .arrow { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-dim); text-align: right; margin-top: 0.6rem; transition: all 0.2s; }
+  .bb-card:hover .arrow { color: var(--glow); transform: translateX(3px); }
+  .bb-card.grok { --glow: var(--cyan); }
+  .bb-card.chatgpt { --glow: var(--lime); }
+  .bb-card.metatracker { --glow: var(--amber); }
+  .bb-card.b1a { --glow: var(--violet); }
+  .bb-card.b1b { --glow: var(--blue); }
+  .bb-card.b1c { --glow: var(--hot-pink); }
+  .bb-card.b1d { --glow: var(--magenta); }
+  .bb-card.b1e { --glow: var(--coral); }
+  .bb-card.b1f { --glow: var(--cyan); }
+  .bb-card.b1g { --glow: var(--lime); }
+  @media (max-width: 768px) { .bb-grid { grid-template-columns: 1fr; } }
+
+  footer { margin-top: 3rem; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-dim); opacity: 0.5; }
+  footer .blink { color: var(--lime); animation: pulse 1.5s infinite; }
+  @media (max-width: 1100px) {
+    .split { grid-template-columns: 1fr; gap: 2rem; }
+    .split-divider { height: 2px; width: 100%; background: linear-gradient(90deg, transparent 0%, var(--hot-pink) 12%, var(--magenta) 28%, var(--violet) 50%, var(--blue) 72%, var(--cyan) 88%, transparent 100%); }
+    .split-divider::before { top: 50%; left: 10%; transform: translateY(-50%); }
+    .split-divider::after { top: 50%; bottom: auto; right: 10%; left: auto; transform: translateY(-50%); }
+  }
+  @media (max-width: 768px) {
+    body { padding: 1.5rem 1rem 3rem; }
+    .meta { text-align: left; }
+    .brag-item { grid-template-columns: 1fr; gap: 0.35rem; }
+    .brag-date { font-size: 0.65rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="brand">
+      <!-- Heart Network Logo -->
+      <svg class="logo" width="72" height="72" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="heartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff1f8f"/>
+            <stop offset="40%" stop-color="#ff2dd1"/>
+            <stop offset="75%" stop-color="#b347ff"/>
+            <stop offset="100%" stop-color="#00f0ff"/>
+          </linearGradient>
+          <radialGradient id="nodeGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+            <stop offset="50%" stop-color="#ff2dd1" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#ff1f8f" stop-opacity="0.6"/>
+          </radialGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="1.2" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- Heart outline -->
+        <path d="M50 88 C 18 64, 8 42, 18 26 C 27 12, 42 14, 50 28 C 58 14, 73 12, 82 26 C 92 42, 82 64, 50 88 Z"
+              fill="none"
+              stroke="url(#heartGrad)"
+              stroke-width="2.5"
+              stroke-linejoin="round"
+              filter="url(#glow)"/>
+
+        <!-- Network edges (inside heart) -->
+        <g stroke="url(#heartGrad)" stroke-width="1" opacity="0.85" filter="url(#glow)">
+          <!-- top-left lobe to right lobe -->
+          <line x1="28" y1="30" x2="72" y2="30"/>
+          <!-- top nodes down to center -->
+          <line x1="28" y1="30" x2="50" y2="50"/>
+          <line x1="72" y1="30" x2="50" y2="50"/>
+          <!-- center to outer mids -->
+          <line x1="50" y1="50" x2="22" y2="52"/>
+          <line x1="50" y1="50" x2="78" y2="52"/>
+          <!-- mids to lower point -->
+          <line x1="22" y1="52" x2="50" y2="78"/>
+          <line x1="78" y1="52" x2="50" y2="78"/>
+          <!-- diagonals -->
+          <line x1="28" y1="30" x2="22" y2="52"/>
+          <line x1="72" y1="30" x2="78" y2="52"/>
+          <line x1="50" y1="50" x2="50" y2="78"/>
+          <!-- extra accent -->
+          <line x1="28" y1="30" x2="50" y2="78" opacity="0.5"/>
+          <line x1="72" y1="30" x2="50" y2="78" opacity="0.5"/>
+        </g>
+
+        <!-- Nodes -->
+        <g filter="url(#glow)">
+          <circle cx="28" cy="30" r="3.5" fill="url(#nodeGrad)"/>
+          <circle cx="72" cy="30" r="3.5" fill="url(#nodeGrad)"/>
+          <circle cx="22" cy="52" r="3" fill="url(#nodeGrad)"/>
+          <circle cx="78" cy="52" r="3" fill="url(#nodeGrad)"/>
+          <circle cx="50" cy="50" r="4.5" fill="url(#nodeGrad)"/>
+          <circle cx="50" cy="78" r="3.5" fill="url(#nodeGrad)"/>
+        </g>
+      </svg>
+
+      <h1 class="masthead">nina's<br>nexus</h1>
+    </div>
+
+    <div class="meta">
+      <div class="date" id="today"></div>
+      <div><span class="pulse"></span>front burner &amp; back burner</div>
+      <div>v.2026</div>
+    </div>
+  </header>
+
+  <!-- SPLIT: ASSISTANTS | TRACKERS | PROJECTS -->
+  <div class="split">
+
+    <!-- COL 1: ASSISTANTS -->
+    <div>
+      <div class="section-header" style="--section-color: var(--magenta);">
+        <h3>// Assistants</h3>
+        <div class="line"></div>
+      </div>
+      <div class="projects-stack">
+        <a href="https://claude.ai/project/019e690d-8a43-75bd-ac43-fa16e49d2906" target="_blank" class="project-card hero">
+          <div class="pinfo">
+            <div class="pnum">&#9733; featured · daily driver</div>
+            <h4>Personal Assistant</h4>
+            <div class="hero-sub">tracker management, triage, planning</div>
+          </div>
+          <div class="hero-cta">Launch &#8599;</div>
+        </a>
+        <a href="https://grok.com/project/b1f01deb-e9e9-43cc-a33c-9e6754190d2b?tab=conversations" target="_blank" class="project-card p7">
+          <div class="pinfo"><div class="pnum">grok</div><h4>Grok Assistant</h4></div><div class="arrow">&#8599;</div>
+        </a>
+        <a href="https://chatgpt.com/g/g-p-6a181f8beff08191b524cc2588a6e02b/project" target="_blank" class="project-card p8">
+          <div class="pinfo"><div class="pnum">chatgpt</div><h4>ChatGPT Assistant</h4></div><div class="arrow">&#8599;</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="split-divider"></div>
+
+    <!-- COL 2: TRACKERS -->
+    <div>
+      <div class="section-header" style="--section-color: var(--hot-pink);">
+        <h3>// Trackers</h3>
+        <div class="line"></div>
+      </div>
+      <div class="tracker-stack">
+        <a href="https://docs.google.com/spreadsheets/d/1SSbeOVZrDNVIYtrb3J2GJpK7csdvnoqzBz6wx8WJyWE/edit" target="_blank" class="card adulting">
+          <div class="card-top"><span class="num">N 01 · primary</span><span class="arrow-small">open &#8599;</span></div>
+          <h2>Adulting</h2>
+          <div class="subtitle">The master list. Everything that doesn't live somewhere more specific lands here.</div>
+        </a>
+        <a href="https://docs.google.com/spreadsheets/d/1-tpWvMCbV2uvfuccluSlR81gb55R0N4tdPy03CgpZPA/edit" target="_blank" class="card mcat">
+          <div class="card-top"><span class="num">N 02 · test day jun 25</span><span class="arrow-small">open &#8599;</span></div>
+          <h2>MCAT</h2>
+          <div class="subtitle">Weekly study schedule, progress 0-4.</div>
+        </a>
+        <a href="https://docs.google.com/spreadsheets/d/1JZheX4RZMsEnh8Mczf_R25atjfM0TC4INPbJh0HcD-k/edit" target="_blank" class="card mit">
+          <div class="card-top"><span class="num">N 03 · mar-sep '26</span><span class="arrow-small">open &#8599;</span></div>
+          <h2>MIT AAIDSP</h2>
+          <div class="subtitle">Read-mostly. Hard deadlines.</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="split-divider"></div>
+
+    <!-- COL 3: PROJECTS -->
+    <div>
+      <div class="section-header" style="--section-color: var(--cyan);">
+        <h3>// Claude Projects</h3>
+        <div class="line"></div>
+      </div>
+      <div class="projects-stack">
+        <a href="https://claude.ai/project/019ddcc3-4cd4-775c-817e-627aeae113c6" target="_blank" class="project-card p4">
+          <div class="pinfo"><div class="pnum">N 01</div><h4>MD-PhD Application</h4></div><div class="arrow">&#8599;</div>
+        </a>
+        <a href="https://claude.ai/project/019dbc9f-b327-77d2-8a27-d415ee2ac2d0" target="_blank" class="project-card p9">
+          <div class="pinfo"><div class="pnum">N 02</div><h4>MIT Applied AI &amp; DS Certificate</h4></div><div class="arrow">&#8599;</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header" style="--section-color: var(--lime);">
+    <h3>// Brag Sheet</h3>
+    <div class="line"></div>
+  </div>
+
+  <div class="brag-section">
+    <div class="brag-toolbar">
+      <div class="brag-tagline">things you've actually <strong>finished</strong>. don't forget.</div>
+      <div class="brag-controls">
+        <button id="refresh-btn">Refresh</button>
+        <a href="https://docs.google.com/spreadsheets/d/1Zk3CEi8EyKEGVcE4fwZyoKMVFyRZ808wmFtQr9xPlzk/edit" target="_blank">Open Brag Sheet &#8599;</a>
+      </div>
+    </div>
+    <div id="brag-content">
+      <div class="brag-loading">// fetching brag sheet...</div>
+    </div>
+    <div class="brag-stats" id="brag-stats" style="display: none;">
+      <div class="stat"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Done</div></div>
+      <div class="stat"><div class="stat-num" id="stat-week">0</div><div class="stat-label">This Week</div></div>
+      <div class="stat"><div class="stat-num" id="stat-month">0</div><div class="stat-label">This Month</div></div>
+      <div class="stat"><div class="stat-num" id="stat-year">0</div><div class="stat-label">This Year</div></div>
+    </div>
+  </div>
+
+  <!-- BACKBURNER 1 -->
+  <div class="section-header" style="--section-color: var(--violet); margin-top: 2.5rem;">
+    <h3>// Backburner 1</h3>
+    <div class="line"></div>
+  </div>
+
+  <button class="backburner-toggle" id="bb1-toggle" aria-expanded="false">
+    <span class="bb-left"><span class="flame" style="color: var(--violet); filter: drop-shadow(0 0 6px var(--violet));">&#9650;</span> on deck &mdash; trackers &amp; projects parked for later</span>
+    <span class="chevron">&#9662;</span>
+  </button>
+  <div class="backburner-body" id="bb1-body">
+    <div class="backburner-inner">
+      <div class="bb-caption">important, just not right-now. pull these back up when the front burner clears.</div>
+      <div class="bb-grid">
+        <a href="https://docs.google.com/spreadsheets/d/1tXwSF3nhNkwn1gM4zdB-TKLjM2Uvd01kHfrC9p1fVqo/edit" target="_blank" class="bb-card b1a">
+          <div class="bb-kind">tracker</div>
+          <h5>Research Tracker</h5>
+          <div class="arrow">open &#8599;</div>
+        </a>
+        <a href="https://docs.google.com/spreadsheets/d/19B_lMOA6QF63rqfadZMTkC3BSuxA9fvdTACXdR0tWrI/edit" target="_blank" class="bb-card b1b">
+          <div class="bb-kind">tracker</div>
+          <h5>Lawsuit Tracker</h5>
+          <div class="arrow">open &#8599;</div>
+        </a>
+        <a href="https://claude.ai/project/019ddd64-43ff-770a-adde-21340ff26171" target="_blank" class="bb-card b1c">
+          <div class="bb-kind">project</div>
+          <h5>Aish LA et al.</h5>
+          <div class="arrow">open &#8599;</div>
+        </a>
+        <a href="https://claude.ai/project/019ddc9e-03a1-7592-abd0-44b6870d3552" target="_blank" class="bb-card b1d">
+          <div class="bb-kind">project</div>
+          <h5>Deeds Pre-print</h5>
+          <div class="arrow">open &#8599;</div>
+        </a>
+        <a href="https://claude.ai/project/019dd175-bb44-7177-bb23-1f7c04a7a7cf" target="_blank" class="bb-card b1e">
+          <div class="bb-kind">project</div>
+          <h5>Applying to Tech Job</h5>
+          <div class="arrow">open &#8599;</div>
+        </a>
+        <a href="https://claude.ai/project/019dcc42-fc3e-7067-bb0b-87a8beab7c76" target="_blank" class="bb-card b1f">
+          <div class="bb-kind">project</div>
+          <h5>PCC Law Suit</h5>
+          <div class="arrow">open &#8599;</div>
+        </a>
+        <a href="https://claude.ai/project/019dcc41-4f0f-7292-8703-3fba0e9ed6e8" target="_blank" class="bb-card b1g">
+          <div class="bb-kind">project</div>
+          <h5>Career Center Law Suit</h5>
+          <div class="arrow">open &#8599;</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- BACKBURNER 2 -->
+  <div class="section-header" style="--section-color: var(--amber); margin-top: 2.5rem;">
+    <h3>// Backburner 2</h3>
+    <div class="line"></div>
+  </div>
+
+  <button class="backburner-toggle" id="bb-toggle" aria-expanded="false">
+    <span class="bb-left"><span class="flame">&#9650;</span> the slow burn &mdash; ideas &amp; meta</span>
+    <span class="chevron">&#9662;</span>
+  </button>
+  <div class="backburner-body" id="bb-body">
+    <div class="backburner-inner">
+      <div class="bb-caption">parked for now, not forgotten. tap to dig in when the time's right.</div>
+      <div class="bb-grid">
+        <a href="https://docs.google.com/spreadsheets/d/1lLWben0q9IzVDfndHZSIJxvbRCC7B7fkGwlk9rd1RF8/edit?gid=0#gid=0" target="_blank" class="bb-card metatracker">
+          <div class="bb-kind">tracker</div>
+          <h5>MetaTracker</h5>
+          <div class="arrow">open &#8599;</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer><span class="blink">&#9679;</span> &nbsp; system online · maintained with care</footer>
+</div>
+
+<script>
+  const d = new Date();
+  document.getElementById('today').textContent = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+
+  const SPREADSHEET_ID = '1Zk3CEi8EyKEGVcE4fwZyoKMVFyRZ808wmFtQr9xPlzk';
+  const BRAG_GID = '0';
+  const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&gid=${BRAG_GID}`;
+
+  const bragContent = document.getElementById('brag-content');
+  const bragStats = document.getElementById('brag-stats');
+  const refreshBtn = document.getElementById('refresh-btn');
+
+  function categoryClass(cat) {
+    if (!cat) return 'cat-etc';
+    const c = cat.toLowerCase();
+    if (c.includes('justice') || c.includes('legal') || c.includes('law')) return 'cat-justice';
+    if (c.includes('mcat') || c.includes('md-phd') || c.includes('md/phd')) return 'cat-mcat';
+    if (c.includes('shape') || c.includes('health') || c.includes('fitness')) return 'cat-shape';
+    if (c.includes('profession') || c.includes('career') || c.includes('tech')) return 'cat-prof';
+    if (c.includes('financ')) return 'cat-financial';
+    if (c.includes('research') || c.includes('ressearch')) return 'cat-research';
+    return 'cat-etc';
+  }
+
+  function parseCSV(text) {
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i], next = text[i+1];
+      if (inQuotes) {
+        if (ch === '"' && next === '"') { field += '"'; i++; }
+        else if (ch === '"') { inQuotes = false; }
+        else { field += ch; }
+      } else {
+        if (ch === '"') inQuotes = true;
+        else if (ch === ',') { row.push(field); field = ''; }
+        else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+        else if (ch === '\r') {}
+        else field += ch;
+      }
+    }
+    if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    if (isNaN(d)) return dateStr;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }).toUpperCase();
+  }
+
+  function computeStats(items) {
+    const now = new Date();
+    const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+    const monthAgo = new Date(now); monthAgo.setMonth(monthAgo.getMonth() - 1);
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+    let week = 0, month = 0, year = 0;
+    items.forEach(it => {
+      const dt = new Date(it.date);
+      if (isNaN(dt)) return;
+      if (dt >= weekAgo) week++;
+      if (dt >= monthAgo) month++;
+      if (dt >= yearStart) year++;
+    });
+    document.getElementById('stat-total').textContent = items.length;
+    document.getElementById('stat-week').textContent = week;
+    document.getElementById('stat-month').textContent = month;
+    document.getElementById('stat-year').textContent = year;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function renderBrag(items) {
+    if (!items.length) {
+      bragContent.innerHTML = '<div class="brag-empty"><h4>// nothing yet</h4><p>No completed tasks yet. Mark something as <strong>Complete</strong> (or <strong>100%</strong>) in your Adulting Tracker and it\'ll show up here.</p></div>';
+      bragStats.style.display = 'grid';
+      computeStats([]);
+      return;
+    }
+    const html = '<div class="brag-list">' + items.map(it => {
+      const cls = categoryClass(it.category);
+      return '<div class="brag-item">' +
+        '<div class="brag-date">' + formatDate(it.date) + '</div>' +
+        '<div class="brag-task">' + escapeHtml(it.task || '(no description)') + '</div>' +
+        '<div class="brag-cat ' + cls + '">' + escapeHtml(it.category || 'etc') + '</div>' +
+        '</div>';
+    }).join('') + '</div>';
+    bragContent.innerHTML = html;
+    bragStats.style.display = 'grid';
+    computeStats(items);
+  }
+
+  async function loadBrag() {
+    bragContent.innerHTML = '<div class="brag-loading">// fetching brag sheet...</div>';
+    bragStats.style.display = 'none';
+    try {
+      const resp = await fetch(CSV_URL + '&_=' + Date.now());
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const text = await resp.text();
+      if (text.trim().startsWith('<')) throw new Error('Sheet returned HTML, not CSV.');
+
+      if (text.includes('#REF!') || text.includes('#ERROR!')) {
+        bragContent.innerHTML =
+          '<div class="brag-empty"><h4>// one-time setup needed</h4>' +
+          '<p>The brag sheet is ready, but Google needs you to authorize the cross-sheet connection. Takes 10 seconds:</p>' +
+          '<ol class="steps">' +
+          '<li>Open the <a href="https://docs.google.com/spreadsheets/d/1Zk3CEi8EyKEGVcE4fwZyoKMVFyRZ808wmFtQr9xPlzk/edit" target="_blank" style="color:var(--lime);text-decoration:underline;">brag sheet</a></li>' +
+          '<li>Click cell <code>A1</code></li>' +
+          '<li>A popup says <strong>"You need to connect these sheets"</strong> &mdash; click <strong>Allow access</strong></li>' +
+          '<li>Come back here and hit Refresh</li>' +
+          '</ol></div>';
+        bragStats.style.display = 'none';
+        return;
+      }
+
+      const rows = parseCSV(text.trim());
+      if (rows.length === 0) { renderBrag([]); return; }
+      const items = rows.slice(1).filter(r => r.some(c => c && c.trim())).map(r => ({
+        date: (r[0] || '').trim(),
+        task: (r[1] || '').trim(),
+        category: (r[2] || '').trim()
+      }));
+      renderBrag(items);
+    } catch (err) {
+      bragContent.innerHTML =
+        '<div class="brag-empty"><h4>// fetch failed</h4>' +
+        '<p>This usually means the file is being opened via <code>file://</code> and the browser is blocking the cross-origin request. Try opening the dashboard inside Claude (Artifact preview), or host it on a quick free service like GitHub Pages, Netlify Drop, or Vercel.</p>' +
+        '<p style="margin-top:0.75rem;font-size:0.78rem;color:var(--text-dim);">Error: ' + escapeHtml(err.message) + '</p>' +
+        '<p style="margin-top:1rem;"><button onclick="loadBrag()" style="background:transparent;border:1px solid var(--amber);color:var(--amber);padding:0.5rem 1rem;font-family:JetBrains Mono,monospace;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;cursor:pointer;">Retry</button></p>' +
+        '</div>';
+      bragStats.style.display = 'none';
+    }
+  }
+
+  refreshBtn.addEventListener('click', loadBrag);
+  loadBrag();
+
+  // ---- Backburner toggles ----
+  function wireToggle(toggleId, bodyId) {
+    const t = document.getElementById(toggleId);
+    const b = document.getElementById(bodyId);
+    if (!t || !b) return;
+    t.addEventListener('click', () => {
+      const isOpen = b.classList.toggle('open');
+      t.classList.toggle('open', isOpen);
+      t.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  }
+  wireToggle('bb1-toggle', 'bb1-body');
+  wireToggle('bb-toggle', 'bb-body');
+</script>
+</body>
+</html>
